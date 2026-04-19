@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\VLM.Personnel.Application\VLM.Personnel.Application.csproj" />
     <ProjectReference Include="..\VLM.Personnel.Infrastructure\VLM.Personnel.Infrastructure.csproj" />
     <ProjectReference Include="..\VLM.Personnel.SharedKernel\VLM.Personnel.SharedKernel.csproj" />
