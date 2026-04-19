@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/database/" />
+  <Folder Name="/scripts/" />
+  <Folder Name="/src/">
+    <Project Path="VLM.Personnel.API/VLM.Personnel.API.csproj" />
+    <Project Path="VLM.Personnel.Application/VLM.Personnel.Application.csproj" />
+    <Project Path="VLM.Personnel.Domain/VLM.Personnel.Domain.csproj" />
+    <Project Path="VLM.Personnel.Infrastructure/VLM.Personnel.Infrastructure.csproj" />
+    <Project Path="VLM.Personnel.SharedKernel/VLM.Personnel.SharedKernel.csproj" />
+    <Project Path="VLM.Personnel.Web/VLM.Personnel.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+</Solution>

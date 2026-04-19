@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VLM.Personnel.Application\VLM.Personnel.Application.csproj" />
+    <ProjectReference Include="..\VLM.Personnel.Domain\VLM.Personnel.Domain.csproj" />
+    <ProjectReference Include="..\VLM.Personnel.SharedKernel\VLM.Personnel.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>
