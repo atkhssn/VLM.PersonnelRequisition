@@ -1,6 +1,10 @@
 <Solution>
-  <Folder Name="/database/" />
-  <Folder Name="/scripts/" />
+  <Folder Name="/database/">
+    <File Path="../DBVLM.bak" />
+  </Folder>
+  <Folder Name="/scripts/">
+    <File Path="DBVLM.sql" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="VLM.Personnel.API/VLM.Personnel.API.csproj" />
     <Project Path="VLM.Personnel.Application/VLM.Personnel.Application.csproj" />
