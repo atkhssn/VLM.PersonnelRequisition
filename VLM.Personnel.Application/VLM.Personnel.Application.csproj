@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mapster" Version="10.0.7" />
+    <PackageReference Include="Mapster.DependencyInjection" Version="10.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\VLM.Personnel.Domain\VLM.Personnel.Domain.csproj" />
     <ProjectReference Include="..\VLM.Personnel.SharedKernel\VLM.Personnel.SharedKernel.csproj" />
   </ItemGroup>
