@@ -1,10 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Data;
 
 namespace VLM.Personnel.Infrastructure.Data
 {
-    internal class DapperContext
+    public class DapperContext
     {
+        private readonly DbConnectionFactory _factory;
+
+        public DapperContext(DbConnectionFactory factory)
+        {
+            _factory = factory;
+        }
+
+        public IDbConnection GetConnection() => _factory.CreateConnection();
     }
 }

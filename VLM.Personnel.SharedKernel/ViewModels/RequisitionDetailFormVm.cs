@@ -1,12 +1,10 @@
-﻿using VLM.Personnel.Domain.Common;
-
-namespace VLM.Personnel.Domain.Entities
+﻿namespace VLM.Personnel.SharedKernel.ViewModels
 {
-    public class RequisitionDetail : BaseEntity
+    public class RequisitionDetailFormVm
     {
-        public long RequisitionDetailId { get; set; }
-        public long RequisitionId { get; set; }
+        public long? RequisitionDetailId { get; set; }
         public int PerspectiveId { get; set; }
+        public string? PerspectiveName { get; set; }
         public string Objective { get; set; } = string.Empty;
         public string? KPI { get; set; }
         public decimal? WeightagePercentage { get; set; }

@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace VLM.Personnel.SharedKernel.Enums
+﻿namespace VLM.Personnel.SharedKernel.Enums
 {
-    internal class RequisitionStatus
+    public enum RequisitionStatus
     {
+        Draft = 1,
+        Submitted = 2,
+        Approved = 3,
+        Rejected = 4,
+        Cancelled = 5,
     }
 }
