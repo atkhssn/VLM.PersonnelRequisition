@@ -1,0 +1,148 @@
+﻿@page "/requisitions"
+@inject RequisitionService RequisitionSvc
+@inject NavigationManager Nav
+@inject DialogService DialogSvc
+@inject NotificationService NotificationSvc
+
+<PageTitle>Requisitions</PageTitle>
+
+<!-- Page Header -->
+<div class="vlm-page-header">
+    <div>
+        <h3>Requisitions</h3>
+        <p>Manage all manpower requisitions</p>
+    </div>
+    <RadzenButton Text="New Requisition"
+                  Icon="add"
+                  ButtonStyle="ButtonStyle.Primary"
+                  Click="@(() => Nav.NavigateTo("/requisitions/new"))" />
+</div>
+
+<!-- Table Card -->
+<div class="vlm-card">
+    <RadzenDataGrid Data="@_list"
+                    TItem="RequisitionListDto"
+                    IsLoading="@_loading"
+                    AllowPaging="true"
+                    PageSize="10"
+                    AllowSorting="true"
+                    AllowFiltering="true"
+                    FilterMode="FilterMode.SimpleWithMenu"
+                    PagerHorizontalAlign="HorizontalAlign.Right"
+                    EmptyText="No requisitions found."
+                    Style="border:none;">
+
+        <Columns>
+
+            <RadzenDataGridColumn TItem="RequisitionListDto"
+                                  Property="RequisitionNo"
+                                  Title="REQ NO"
+                                  Width="140px" />
+
+            <RadzenDataGridColumn TItem="RequisitionListDto"
+                                  Property="ReqDate"
+                                  Title="DATE"
+                                  Width="110px"
+                                  FormatString="{0:dd MMM yyyy}" />
+
+            <RadzenDataGridColumn TItem="RequisitionListDto"
+                                  Property="DivisionName"
+                                  Title="DIVISION" />
+
+            <RadzenDataGridColumn TItem="RequisitionListDto"
+                                  Property="DepartmentName"
+                                  Title="DEPARTMENT" />
+
+            <RadzenDataGridColumn TItem="RequisitionListDto"
+                                  Property="DesignationName"
+                                  Title="DESIGNATION" />
+
+            <RadzenDataGridColumn TItem="RequisitionListDto"
+                                  Property="Vacancy"
+                                  Title="VACANCY"
+                                  Width="90px"
+                                  TextAlign="TextAlign.Center" />
+
+            <RadzenDataGridColumn TItem="RequisitionListDto"
+                                  Property="Status"
+                                  Title="STATUS"
+                                  Width="110px"
+                                  TextAlign="TextAlign.Center">
+                <Template Context="row">
+                    <span class="badge @GetBadgeClass(row.Status)">@row.Status</span>
+                </Template>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="RequisitionListDto"
+                                  Title="ACTIONS"
+                                  Width="120px"
+                                  TextAlign="TextAlign.Center"
+                                  Sortable="false"
+                                  Filterable="false">
+                <Template Context="row">
+                    <RadzenButton Icon="edit"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Size="ButtonSize.Small"
+                                  Click="@(() => Nav.NavigateTo($"/requisitions/{row.RequisitionId}/edit"))"
+                                  title="Edit" />
+                    <RadzenButton Icon="delete"
+                                  ButtonStyle="ButtonStyle.Danger"
+                                  Size="ButtonSize.Small"
+                                  Style="margin-left:6px;"
+                                  Click="@(() => ConfirmDelete(row))"
+                                  title="Delete" />
+                </Template>
+            </RadzenDataGridColumn>
+
+        </Columns>
+    </RadzenDataGrid>
+</div>
+
+@code {
+    private List<RequisitionListDto> _list = new();
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        _loading = true;
+        var res = await RequisitionSvc.GetAllAsync();
+        _list = res?.Data?.ToList() ?? new();
+        _loading = false;
+    }
+
+    private async Task ConfirmDelete(RequisitionListDto row)
+    {
+        var confirmed = await DialogSvc.Confirm(
+            $"Delete requisition <b>{row.RequisitionNo}</b>? This cannot be undone.",
+            "Confirm Delete",
+            new ConfirmOptions { OkButtonText = "Delete", CancelButtonText = "Cancel" });
+
+        if (confirmed != true) return;
+
+        var res = await RequisitionSvc.DeleteAsync(row.RequisitionId);
+        if (res?.Success == true)
+        {
+            NotificationSvc.Notify(NotificationSeverity.Success, "Deleted", $"{row.RequisitionNo} removed.");
+            await LoadData();
+        }
+        else
+        {
+            NotificationSvc.Notify(NotificationSeverity.Error, "Error", res?.Message ?? "Delete failed.");
+        }
+    }
+
+    private static string GetBadgeClass(string status) => status switch
+    {
+        "Draft" => "badge-draft",
+        "Pending" => "badge-pending",
+        "Approved" => "badge-approved",
+        "Rejected" => "badge-rejected",
+        "Cancelled" => "badge-cancelled",
+        _ => "badge-draft"
+    };
+}

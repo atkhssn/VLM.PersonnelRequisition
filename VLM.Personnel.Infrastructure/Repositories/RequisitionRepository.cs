@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using System.Data;
 using VLM.Personnel.Application.Interfaces.Repositories;
 using VLM.Personnel.Domain.Entities;
 using VLM.Personnel.Infrastructure.Data;
@@ -91,26 +92,25 @@ namespace VLM.Personnel.Infrastructure.Repositories
         public async Task<long> CreateAsync(Requisition requisition, IEnumerable<RequisitionDetail> details)
         {
             const string insertRequisition = """
-            DECLARE @RequisitionNo NVARCHAR(50);
-            SET @RequisitionNo = 'REQ-' + FORMAT(GETDATE(), 'yyyyMMdd') + '-' + RIGHT('0000' + CAST(NEXT VALUE FOR hr.Seq_Requisition AS NVARCHAR), 4);
-
-            INSERT INTO hr.Requisition
-                (RequisitionNo, ReqDate, DivisionId, DepartmentId, DesignationId, Vacancy, Status, Description, CreatedAt)
-            VALUES
-                (@RequisitionNo, @ReqDate, @DivisionId, @DepartmentId, @DesignationId, @Vacancy, @Status, @Description, @CreatedAt);
-
-            SELECT CAST(SCOPE_IDENTITY() AS BIGINT);
-            """;
+        DECLARE @RequisitionNo NVARCHAR(50);
+        SET @RequisitionNo = 'REQ-' + FORMAT(GETDATE(), 'yyyyMMdd') + '-' + RIGHT('0000' + CAST(NEXT VALUE FOR hr.Seq_Requisition AS NVARCHAR), 4);
+        
+        INSERT INTO hr.Requisition 
+            (RequisitionNo, ReqDate, DivisionId, DepartmentId, DesignationId, Vacancy, Status, Description, CreatedAt)
+        OUTPUT INSERTED.RequisitionId
+        VALUES 
+            (@RequisitionNo, @ReqDate, @DivisionId, @DepartmentId, @DesignationId, @Vacancy, @Status, @Description, @CreatedAt);
+        """;
 
             const string insertDetail = """
-            INSERT INTO hr.RequisitionDetail
-                (RequisitionId, PerspectiveId, Objective, KPI, WeightagePercentage, Remarks, CreatedAt)
-            VALUES
-                (@RequisitionId, @PerspectiveId, @Objective, @KPI, @WeightagePercentage, @Remarks, @CreatedAt);
-            """;
+        INSERT INTO hr.RequisitionDetail 
+            (RequisitionId, PerspectiveId, Objective, KPI, WeightagePercentage, Remarks, CreatedAt)
+        VALUES 
+            (@RequisitionId, @PerspectiveId, @Objective, @KPI, @WeightagePercentage, @Remarks, @CreatedAt);
+        """;
 
             using var conn = _context.GetConnection();
-            conn.Open();
+            if (conn.State != ConnectionState.Open) conn.Open();
             using var tx = conn.BeginTransaction();
 
             try
@@ -127,12 +127,14 @@ namespace VLM.Personnel.Infrastructure.Repositories
                     requisition.CreatedAt
                 }, tx);
 
+                if (newId <= 0)
+                    throw new Exception("Failed to retrieve the new Requisition ID.");
+
                 foreach (var detail in details)
                 {
-                    detail.RequisitionId = newId;
                     await conn.ExecuteAsync(insertDetail, new
                     {
-                        detail.RequisitionId,
+                        RequisitionId = newId,
                         detail.PerspectiveId,
                         detail.Objective,
                         detail.KPI,

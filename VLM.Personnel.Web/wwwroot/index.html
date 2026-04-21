@@ -1,33 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VLM.Personnel.Web</title>
+    <title>VLM Personnel</title>
+
     <base href="/" />
-    <link rel="preload" id="webassembly" />
+
+    <!-- Radzen Theme -->
+    <link rel="stylesheet" href="_content/Radzen.Blazor/css/material-base.css" />
+
+    <!-- App CSS -->
     <link rel="stylesheet" href="css/app.css" />
-    <!-- If you add any scoped CSS files, uncomment the following to load them
-    <link href="VLM.Personnel.Web.styles.css" rel="stylesheet" /> -->
+
     <script type="importmap"></script>
 </head>
-
 <body>
     <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
+        <div class="vlm-splash">
+            <p>Loading...</p>
+        </div>
     </div>
 
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="." class="reload">Reload</a>
-        <span class="dismiss">🗙</span>
-    </div>
-    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
+    <script src="_framework/blazor.webassembly.js"></script>
+    <!-- Radzen JS -->
+    <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
 </body>
-
 </html>

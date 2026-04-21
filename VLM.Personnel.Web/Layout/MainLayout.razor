@@ -1,3 +1,37 @@
 ﻿@inherits LayoutComponentBase
 
-@Body
+<div class="vlm-shell">
+
+    <!-- Sidebar -->
+    <aside class="vlm-sidebar">
+        <div class="vlm-sidebar-brand">
+            <h2>VLM Personnel</h2>
+            <span>HR Management</span>
+        </div>
+        <nav class="vlm-nav">
+            <div class="vlm-nav-section">Recruitment</div>
+            <NavLink href="requisitions" Match="NavLinkMatch.Prefix">
+                <RadzenIcon Icon="assignment" />
+                Requisitions
+            </NavLink>
+        </nav>
+    </aside>
+
+    <!-- Main -->
+    <div class="vlm-main">
+        <!-- Topbar -->
+        <header class="vlm-topbar">
+            <span class="vlm-topbar-title">HR Management System</span>
+            <div class="vlm-topbar-right">
+                <RadzenIcon Icon="account_circle" />
+                Administrator
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="vlm-content">
+            @Body
+        </main>
+    </div>
+
+</div>
