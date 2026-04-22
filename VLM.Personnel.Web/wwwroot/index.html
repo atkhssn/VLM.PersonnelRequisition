@@ -6,24 +6,22 @@
     <title>VLM Personnel</title>
 
     <base href="/" />
+    <link rel="icon" type="image/png" href="icon-192.png" />
 
-    <!-- Radzen Theme -->
     <link rel="stylesheet" href="_content/Radzen.Blazor/css/material-base.css" />
-
-    <!-- App CSS -->
     <link rel="stylesheet" href="css/app.css" />
-
-    <script type="importmap"></script>
 </head>
 <body>
     <div id="app">
         <div class="vlm-splash">
-            <p>Loading...</p>
+            <div class="vlm-splash-content">
+                <div class="vlm-spinner"></div>
+                <span class="vlm-loading-text">Loading...</span>
+            </div>
         </div>
     </div>
 
     <script src="_framework/blazor.webassembly.js"></script>
-    <!-- Radzen JS -->
     <script src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
 </body>
 </html>

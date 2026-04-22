@@ -92,22 +92,29 @@ namespace VLM.Personnel.Infrastructure.Repositories
         public async Task<long> CreateAsync(Requisition requisition, IEnumerable<RequisitionDetail> details)
         {
             const string insertRequisition = """
-        DECLARE @RequisitionNo NVARCHAR(50);
-        SET @RequisitionNo = 'REQ-' + FORMAT(GETDATE(), 'yyyyMMdd') + '-' + RIGHT('0000' + CAST(NEXT VALUE FOR hr.Seq_Requisition AS NVARCHAR), 4);
-        
-        INSERT INTO hr.Requisition 
-            (RequisitionNo, ReqDate, DivisionId, DepartmentId, DesignationId, Vacancy, Status, Description, CreatedAt)
-        OUTPUT INSERTED.RequisitionId
-        VALUES 
-            (@RequisitionNo, @ReqDate, @DivisionId, @DepartmentId, @DesignationId, @Vacancy, @Status, @Description, @CreatedAt);
-        """;
+            DECLARE @NewSeq INT;
+            DECLARE @Today NVARCHAR(8) = FORMAT(GETDATE(), 'yyMMdd');
+            DECLARE @Prefix NVARCHAR(20) = 'R' + @Today + '-';
+
+            SELECT @NewSeq = ISNULL(MAX(CAST(RIGHT(RequisitionNo, 4) AS INT)), 0) + 1
+            FROM hr.Requisition WITH (UPDLOCK, HOLDLOCK)
+            WHERE RequisitionNo LIKE @Prefix + '%';
+
+            DECLARE @RequisitionNo NVARCHAR(50) = @Prefix + RIGHT('0000' + CAST(@NewSeq AS NVARCHAR), 4);
+
+            INSERT INTO hr.Requisition 
+                (RequisitionNo, ReqDate, DivisionId, DepartmentId, DesignationId, Vacancy, Status, Description)
+            OUTPUT INSERTED.RequisitionId
+            VALUES 
+                (@RequisitionNo, @ReqDate, @DivisionId, @DepartmentId, @DesignationId, @Vacancy, @Status, @Description);
+            """;
 
             const string insertDetail = """
-        INSERT INTO hr.RequisitionDetail 
-            (RequisitionId, PerspectiveId, Objective, KPI, WeightagePercentage, Remarks, CreatedAt)
-        VALUES 
-            (@RequisitionId, @PerspectiveId, @Objective, @KPI, @WeightagePercentage, @Remarks, @CreatedAt);
-        """;
+            INSERT INTO hr.RequisitionDetail 
+                (RequisitionId, PerspectiveId, Objective, KPI, WeightagePercentage, Remarks)
+            VALUES 
+                (@RequisitionId, @PerspectiveId, @Objective, @KPI, @WeightagePercentage, @Remarks);
+            """;
 
             using var conn = _context.GetConnection();
             if (conn.State != ConnectionState.Open) conn.Open();
@@ -123,8 +130,7 @@ namespace VLM.Personnel.Infrastructure.Repositories
                     requisition.DesignationId,
                     requisition.Vacancy,
                     requisition.Status,
-                    requisition.Description,
-                    requisition.CreatedAt
+                    requisition.Description
                 }, tx);
 
                 if (newId <= 0)
@@ -139,8 +145,7 @@ namespace VLM.Personnel.Infrastructure.Repositories
                         detail.Objective,
                         detail.KPI,
                         detail.WeightagePercentage,
-                        detail.Remarks,
-                        detail.CreatedAt
+                        detail.Remarks
                     }, tx);
                 }
 
@@ -172,9 +177,9 @@ namespace VLM.Personnel.Infrastructure.Repositories
             IF @RequisitionDetailId IS NULL OR @RequisitionDetailId = 0
             BEGIN
                 INSERT INTO hr.RequisitionDetail
-                    (RequisitionId, PerspectiveId, Objective, KPI, WeightagePercentage, Remarks, CreatedAt)
+                    (RequisitionId, PerspectiveId, Objective, KPI, WeightagePercentage, Remarks)
                 VALUES
-                    (@RequisitionId, @PerspectiveId, @Objective, @KPI, @WeightagePercentage, @Remarks, @CreatedAt);
+                    (@RequisitionId, @PerspectiveId, @Objective, @KPI, @WeightagePercentage, @Remarks);
             END
             ELSE
             BEGIN
@@ -229,8 +234,7 @@ namespace VLM.Personnel.Infrastructure.Repositories
                         detail.Objective,
                         detail.KPI,
                         detail.WeightagePercentage,
-                        detail.Remarks,
-                        detail.CreatedAt
+                        detail.Remarks
                     }, tx);
                 }
 
@@ -278,9 +282,9 @@ namespace VLM.Personnel.Infrastructure.Repositories
         {
             const string sql = """
             INSERT INTO hr.RequisitionDetail
-                (RequisitionId, PerspectiveId, Objective, KPI, WeightagePercentage, Remarks, CreatedAt)
+                (RequisitionId, PerspectiveId, Objective, KPI, WeightagePercentage, Remarks)
             VALUES
-                (@RequisitionId, @PerspectiveId, @Objective, @KPI, @WeightagePercentage, @Remarks, @CreatedAt);
+                (@RequisitionId, @PerspectiveId, @Objective, @KPI, @WeightagePercentage, @Remarks);
             SELECT CAST(SCOPE_IDENTITY() AS BIGINT);
             """;
 
@@ -292,8 +296,7 @@ namespace VLM.Personnel.Infrastructure.Repositories
                 detail.Objective,
                 detail.KPI,
                 detail.WeightagePercentage,
-                detail.Remarks,
-                detail.CreatedAt
+                detail.Remarks
             });
         }
 

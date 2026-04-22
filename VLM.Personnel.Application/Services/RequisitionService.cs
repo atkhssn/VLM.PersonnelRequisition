@@ -34,7 +34,7 @@ namespace VLM.Personnel.Application.Services
         {
             var entity = dto.Adapt<Requisition>();
             var details = dto.Details.Select(d => d.Adapt<RequisitionDetail>()).ToList();
-
+            entity.Status = entity.Status.ToUpper();
             var newId = await _repo.CreateAsync(entity, details);
             return ApiResponse<long>.Ok(newId, "Requisition created successfully.");
         }
@@ -43,15 +43,19 @@ namespace VLM.Personnel.Application.Services
         {
             var entity = dto.Adapt<Requisition>();
             entity.RequisitionId = dto.RequisitionId;
+            entity.Status = entity.Status.ToUpper();
 
             var details = dto.Details.Select(d =>
             {
                 var detail = d.Adapt<RequisitionDetail>();
                 detail.RequisitionId = dto.RequisitionId;
+                detail.CreatedAt = DateTime.UtcNow;
                 return detail;
             }).ToList();
 
-            var success = await _repo.UpdateAsync(entity, details, Array.Empty<long>());
+            var deletedIds = dto.DeletedDetailIds ?? new List<long>();
+
+            var success = await _repo.UpdateAsync(entity, details, deletedIds);
 
             return success
                 ? ApiResponse.Ok("Requisition updated successfully.")
@@ -79,7 +83,6 @@ namespace VLM.Personnel.Application.Services
             var detail = dto.Adapt<RequisitionDetail>();
             detail.RequisitionId = requisitionId;
             detail.CreatedAt = DateTime.UtcNow;
-
             var newId = await _repo.AddDetailAsync(detail);
             return ApiResponse<long>.Ok(newId, "Detail added successfully.");
         }
@@ -88,7 +91,6 @@ namespace VLM.Personnel.Application.Services
         {
             var detail = dto.Adapt<RequisitionDetail>();
             detail.RequisitionDetailId = detailId;
-
             var success = await _repo.UpdateDetailAsync(detail);
             return success
                 ? ApiResponse.Ok("Detail updated successfully.")

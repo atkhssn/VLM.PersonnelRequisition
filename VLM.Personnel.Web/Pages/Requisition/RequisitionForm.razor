@@ -1,24 +1,8 @@
-﻿@page "/requisitions/new"
-@page "/requisitions/{Id:long}/edit"
-@using Radzen
-@using Radzen.Blazor
+﻿@using VLM.Personnel.SharedKernel.DTOs
+@using VLM.Personnel.SharedKernel.Common
 @inject RequisitionService RequisitionSvc
 @inject LookupService LookupSvc
-@inject NavigationManager Nav
 @inject NotificationService NotificationSvc
-
-<PageTitle>@(_isEdit ? "Edit Requisition" : "New Requisition")</PageTitle>
-
-<div class="vlm-page-header">
-    <div>
-        <h3>@(_isEdit ? "Edit Requisition" : "New Requisition")</h3>
-        <p>@(_isEdit ? $"Editing Requisition #{Id}" : "Fill in the details below")</p>
-    </div>
-    <RadzenButton Text="Back to List"
-                  Icon="arrow_back"
-                  ButtonStyle="ButtonStyle.Light"
-                  Click="@(() => Nav.NavigateTo("/requisitions"))" />
-</div>
 
 @if (_loading)
 {
@@ -30,172 +14,317 @@ else
 {
     <EditForm Model="_form" OnValidSubmit="HandleSubmit">
         <DataAnnotationsValidator />
-        <ValidationSummary />
 
-        <div class="vlm-card" style="margin-bottom:20px;">
-            <div class="vlm-card-body">
-                <div class="vlm-section-label">Requisition Info</div>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+        @* GENERAL INFORMATION *@
+        <div style="margin-bottom:20px;">
+            <div class="vlm-section-label">General Information</div>
 
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+
+                @if (_isEdit)
+                {
                     <div>
-                        <RadzenLabel Text="Date *" />
-                        <RadzenDatePicker @bind-Value="_form.ReqDate"
-                                          DateFormat="dd/MM/yyyy"
-                                          Style="width:100%;" />
-                    </div>
-
-                    <div>
-                        <RadzenLabel Text="Division *" />
-                        <RadzenDropDown Data="@_divisions"
-                                        TextProperty="DivisionName"
-                                        ValueProperty="DivisionId"
-                                        @bind-Value="_form.DivisionId"
-                                        Change="@(args => OnDivisionChanged(args))"
-                                        Placeholder="Select Division"
-                                        Style="width:100%;" />
-                    </div>
-
-                    <div>
-                        <RadzenLabel Text="Department *" />
-                        <RadzenDropDown Data="@_departments"
-                                        TextProperty="DepartmentName"
-                                        ValueProperty="DepartmentId"
-                                        @bind-Value="_form.DepartmentId"
-                                        Placeholder="Select Department"
-                                        Disabled="@(_form.DivisionId <= 0)"
-                                        Style="width:100%;" />
-                    </div>
-
-                    <div>
-                        <RadzenLabel Text="Designation *" />
-                        <RadzenDropDown Data="@_designations"
-                                        TextProperty="DesignationName"
-                                        ValueProperty="DesignationId"
-                                        @bind-Value="_form.DesignationId"
-                                        Placeholder="Select Designation"
-                                        Style="width:100%;" />
-                    </div>
-
-                    <div>
-                        <RadzenLabel Text="Vacancy *" />
-                        <RadzenNumeric @bind-Value="_form.Vacancy"
-                                       Min="1"
+                        <RadzenLabel Text="Requisition No" />
+                        <RadzenTextBox Value="@_reqNo"
+                                       Disabled="true"
                                        Style="width:100%;" />
                     </div>
+                }
 
-                    @if (_isEdit)
+                <div>
+                    <RadzenLabel Text="Requisition Date *" />
+                    <RadzenDatePicker @bind-Value="_form.ReqDate"
+                                      DateFormat="dd-MMMM-yyyy"
+                                      Disabled="@_isEdit"
+                                      Style="width:100%;" />
+                </div>
+
+                <div>
+                    <RadzenLabel Text="Division *" />
+                    <RadzenDropDown Data="@_divisions"
+                                    TextProperty="DivisionName"
+                                    ValueProperty="DivisionId"
+                                    @bind-Value="_form.DivisionId"
+                                    Change="@(args => OnDivisionChanged(args))"
+                                    Placeholder="Select Division"
+                                    Disabled="@_isSubmitted"
+                                    Style="width:100%;" />
+                </div>
+
+                <div>
+                    <RadzenLabel Text="Department *" />
+                    <RadzenDropDown Data="@_departments"
+                                    TextProperty="DepartmentName"
+                                    ValueProperty="DepartmentId"
+                                    @bind-Value="_form.DepartmentId"
+                                    Placeholder="Select Department"
+                                    Disabled="@(_form.DivisionId <= 0 || _isSubmitted)"
+                                    Style="width:100%;" />
+                </div>
+
+                <div>
+                    <RadzenLabel Text="Designation *" />
+                    <RadzenDropDown Data="@_designations"
+                                    TextProperty="DesignationName"
+                                    ValueProperty="DesignationId"
+                                    @bind-Value="_form.DesignationId"
+                                    Placeholder="Select Designation"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    FilterOperator="StringFilterOperator.Contains"
+                                    Disabled="@_isSubmitted"
+                                    Style="width:100%;" />
+                </div>
+
+                <div>
+                    <RadzenLabel Text="Vacancy *" />
+                    <RadzenNumeric @bind-Value="_form.Vacancy"
+                                   Min="1"
+                                   Disabled="@_isSubmitted"
+                                   Style="width:100%;" />
+                </div>
+
+                <div style="grid-column:1/-1;">
+                    <RadzenLabel Text="Description" />
+                    <RadzenTextArea @bind-Value="_form.Description"
+                                    Rows="2"
+                                    Style="width:100%;" />
+                </div>
+
+            </div>
+        </div>
+
+        @* KPI LIST INFORMATION *@
+        <div style="margin-bottom:20px;">
+            <div class="vlm-section-label">KPI List Information</div>
+
+            <div class="kpi-tree">
+                <div class="kpi-tree-header">
+                    <div class="kpi-tree-header-cell"></div>
+                    <div class="kpi-tree-header-cell">Perspective / Objective</div>
+                    <div class="kpi-tree-header-cell">KPI</div>
+                    <div class="kpi-tree-header-cell" style="text-align:center;">Weightage</div>
+                    <div class="kpi-tree-header-cell">Remarks</div>
+                    <div class="kpi-tree-header-cell" style="text-align:center;">Commands</div>
+                </div>
+
+                @foreach (var perspective in _perspectives.OrderBy(o => o.PerspectiveId))
+                {
+                    var pid = perspective.PerspectiveId;
+                    var isExpanded = _expanded.Contains(pid);
+                    var children = GetChildren(pid);
+
+                    <!-- Parent Row -->
+                    <div class="kpi-perspective-row"
+                         @onclick="() => ToggleExpand(pid)">
+                        <div class="kpi-perspective-toggle @(isExpanded ? "expanded" : "")">
+                            <RadzenIcon Icon="arrow_right" />
+                        </div>
+                        <div class="kpi-perspective-name">
+                            @perspective.PerspectiveName
+                            @if (children.Any())
+                            {
+                                <span style="margin-left:10px;font-size:0.7rem;font-weight:400;
+                                    color:#667eea;background:#ebf4ff;border-radius:999px;
+                                    padding:1px 8px;">
+                                    @children.Count
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Children -->
+                    @if (isExpanded)
                     {
-                        <div>
-                            <RadzenLabel Text="Status" />
-                            <RadzenDropDown Data="@_statuses"
-                                            @bind-Value="_form.Status"
-                                            Style="width:100%;" />
+                        <div class="kpi-children">
+
+                            <div class="kpi-add-bar">
+                                <RadzenButton Text="+ Add"
+                                              ButtonStyle="ButtonStyle.Secondary"
+                                              Size="ButtonSize.ExtraSmall"
+                                              Disabled="@_isSubmitted"
+                                              Click="() => AddChild(pid)" />
+                            </div>
+
+                            @if (!children.Any())
+                            {
+                                <div class="kpi-empty-row">No records to display.</div>
+                            }
+                            else
+                            {
+                                @foreach (var child in children)
+                                {
+                                    var isEditing = _editingRows.Contains(child);
+
+                                    <div class="kpi-child-row">
+
+                                        <div class="kpi-child-cell" style="background:#fafbff;"></div>
+
+                                        <!-- Objective -->
+                                        <div class="kpi-child-cell">
+                                            @if (isEditing)
+                                            {
+                                                <RadzenTextBox @bind-Value="child.Objective"
+                                                               Placeholder="Enter objective..."
+                                                               Style="width:100%;font-size:0.82rem;" />
+                                            }
+                                            else
+                                            {
+                                                <span style="font-size:0.85rem;">@child.Objective</span>
+                                            }
+                                        </div>
+
+                                        <!-- KPI -->
+                                        <div class="kpi-child-cell">
+                                            @if (isEditing)
+                                            {
+                                                <RadzenTextBox @bind-Value="child.KPI"
+                                                               Placeholder="Enter KPI metric..."
+                                                               Style="width:100%;font-size:0.82rem;" />
+                                            }
+                                            else
+                                            {
+                                                <span style="font-size:0.85rem;">@child.KPI</span>
+                                            }
+                                        </div>
+
+                                        <!-- Weightage -->
+                                        <div class="kpi-child-cell" style="justify-content:center;">
+                                            @if (isEditing)
+                                            {
+                                                <RadzenNumeric @bind-Value="child.WeightagePercentage"
+                                                               Min="0" Max="100"
+                                                               Style="width: 100%; font-size: 0.82rem;" />
+                                            }
+                                            else
+                                            {
+                                                <span style="font-size:0.85rem;">
+                                                    @(child.WeightagePercentage?.ToString("0.##") ?? "-") %
+                                                </span>
+                                            }
+                                        </div>
+
+                                        <!-- Remarks -->
+                                        <div class="kpi-child-cell">
+                                            @if (isEditing)
+                                            {
+                                                <RadzenTextBox @bind-Value="child.Remarks"
+                                                               Placeholder="Remarks..."
+                                                               Style="width:100%;font-size:0.82rem;" />
+                                            }
+                                            else
+                                            {
+                                                <span style="font-size:0.85rem;color:#718096;">
+                                                    @child.Remarks
+                                                </span>
+                                            }
+                                        </div>
+
+                                        <!-- Actions -->
+                                        <div class="kpi-child-cell"
+                                             style="justify-content:center;gap:6px;display:flex;">
+                                            @if (isEditing)
+                                            {
+                                                <button class="kpi-action-btn save"
+                                                        title="Save row"
+                                                        type="button"
+                                                        @onclick="() => SaveRow(child)">
+                                                    <RadzenIcon Icon="check_circle" Style="font-size:20px;" />
+                                                </button>
+                                                <button class="kpi-action-btn cancel"
+                                                        title="Cancel"
+                                                        type="button"
+                                                        @onclick="() => CancelRow(child)">
+                                                    <RadzenIcon Icon="cancel" Style="font-size:20px;" />
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button class="kpi-action-btn"
+                                                        title="Edit row"
+                                                        type="button"
+                                                        disabled="@_isSubmitted"
+                                                        @onclick="() => EditRow(child)">
+                                                    <RadzenIcon Icon="edit" Style="font-size:20px;" />
+                                                </button>
+                                            }
+                                            <button class="kpi-action-btn delete"
+                                                    title="Delete row"
+                                                    type="button"
+                                                    disabled="@_isSubmitted"
+                                                    @onclick="() => DeleteRow(child)">
+                                                <RadzenIcon Icon="delete" Style="font-size:20px;" />
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                }
+                            }
                         </div>
                     }
+                }
 
-                    <div style="grid-column:1/-1;">
-                        <RadzenLabel Text="Description" />
-                        <RadzenTextArea @bind-Value="_form.Description"
-                                        Rows="3"
-                                        Style="width:100%;" />
-                    </div>
-                </div>
+            </div>
+
+            <!-- Weightage total -->
+            <div class="vlm-weight-bar">
+                <span>Total Weightage:</span>
+
+                <span class="vlm-weight-value @(_totalWeight == 100 ? "vlm-weight-ok" : "vlm-weight-warn")">
+                    @_totalWeight %
+                </span>
+
+                @if (_totalWeight != 100 && _form.Details.Any())
+                {
+                    <span class="vlm-weight-warning">
+                        <RadzenIcon Icon="warning" />
+                        Must equal 100%
+                    </span>
+                }
             </div>
         </div>
 
-        <div class="vlm-card" style="margin-bottom:20px;">
-            <div class="vlm-card-body">
-                <div style="display:flex;align-items:center;justify-content:space-between;">
-                    <div class="vlm-section-label" style="margin:0;border:none;">KPI Details</div>
-                    <RadzenButton Text="Add Row"
-                                  Icon="add"
-                                  ButtonStyle="ButtonStyle.Secondary"
-                                  Size="ButtonSize.Small"
-                                  Click="AddDetailRow" />
-                </div>
-
-                <RadzenDataGrid @ref="_grid"
-                                Data="@_form.Details"
-                                TItem="RequisitionDetailUpdateDto"
-                                Style="margin-top:12px;border:none;"
-                                EmptyText="No KPI rows. Click Add Row.">
-                    <Columns>
-                        <RadzenDataGridColumn TItem="RequisitionDetailUpdateDto" Title="PERSPECTIVE" Width="180px">
-                            <Template Context="row">
-                                <RadzenDropDown Data="@_perspectives"
-                                                TextProperty="PerspectiveName"
-                                                ValueProperty="PerspectiveId"
-                                                @bind-Value="row.PerspectiveId"
-                                                Style="width:100%;" />
-                            </Template>
-                        </RadzenDataGridColumn>
-
-                        <RadzenDataGridColumn TItem="RequisitionDetailUpdateDto" Title="OBJECTIVE">
-                            <Template Context="row">
-                                <RadzenTextBox @bind-Value="row.Objective" Style="width:100%;" />
-                            </Template>
-                        </RadzenDataGridColumn>
-
-                        <RadzenDataGridColumn TItem="RequisitionDetailUpdateDto" Title="KPI" Width="160px">
-                            <Template Context="row">
-                                <RadzenTextBox @bind-Value="row.KPI" Style="width:100%;" />
-                            </Template>
-                        </RadzenDataGridColumn>
-
-                        <RadzenDataGridColumn TItem="RequisitionDetailUpdateDto" Title="WEIGHT %" Width="110px">
-                            <Template Context="row">
-                                <RadzenNumeric @bind-Value="row.WeightagePercentage"
-                                               Min="0" Max="100"
-                                               Style="width:100%;" />
-                            </Template>
-                        </RadzenDataGridColumn>
-
-                        <RadzenDataGridColumn TItem="RequisitionDetailUpdateDto" Title="REMARKS" Width="160px">
-                            <Template Context="row">
-                                <RadzenTextBox @bind-Value="row.Remarks" Style="width:100%;" />
-                            </Template>
-                        </RadzenDataGridColumn>
-
-                        <RadzenDataGridColumn TItem="RequisitionDetailUpdateDto" Title="" Width="60px" TextAlign="TextAlign.Center">
-                            <Template Context="row">
-                                <RadzenButton Icon="delete"
-                                              ButtonStyle="ButtonStyle.Danger"
-                                              Size="ButtonSize.Small"
-                                              Click="@(() => RemoveDetailRow(row))" />
-                            </Template>
-                        </RadzenDataGridColumn>
-                    </Columns>
-                </RadzenDataGrid>
-
-                <div style="text-align:right;margin-top:10px;font-size:0.82rem;color:#718096;">
-                    Total Weight:
-                    <strong style="color:@(_totalWeight == 100 ? "#48bb78" : "#e53e3e")">
-                        @_totalWeight %
-                    </strong>
-                </div>
-            </div>
-        </div>
-
-        <div style="display:flex;gap:12px;justify-content:flex-end;">
-            <RadzenButton Text="Cancel"
+        @* ACTIONS *@
+        <div style="display:flex;gap:12px;justify-content:flex-end;
+            padding-top:12px;border-top:1px solid #edf2f7;">
+            <RadzenButton Text="Reset"
+                          Icon="restart_alt"
                           ButtonStyle="ButtonStyle.Light"
-                          Click="@(() => Nav.NavigateTo("/requisitions"))" />
-            <RadzenButton Text="@(_isEdit ? "Update" : "Save")"
+                          Click="ResetForm"
+                          Disabled="@_isSubmitted"
+                          ButtonType="ButtonType.Button" />
+            <RadzenButton Text="Save as Draft"
                           Icon="save"
+                          ButtonStyle="ButtonStyle.Secondary"
+                          Click="SaveAsDraft"
+                          IsBusy="@(_saving && _saveMode == "draft")"
+                          Disabled="@_isSubmitted"
+                          ButtonType="ButtonType.Button" />
+            <RadzenButton Text="Submit"
+                          Icon="send"
                           ButtonStyle="ButtonStyle.Primary"
                           ButtonType="ButtonType.Submit"
-                          IsBusy="@_saving" />
+                          Disabled="@_isSubmitted"
+                          IsBusy="@(_saving && _saveMode == "submit")" />
         </div>
+
     </EditForm>
 }
 
 @code {
-    [Parameter] public long? Id { get; set; }
+    [Parameter] public long? EditingId { get; set; }
+    [Parameter] public EventCallback OnSaved { get; set; }
 
-    private RadzenDataGrid<RequisitionDetailUpdateDto> _grid;
-    private bool _isEdit => Id.HasValue;
+    private bool _initialized = false;
+    private long? _lastEditingId = null;
+
     private bool _loading = true;
     private bool _saving = false;
+    private string _saveMode = string.Empty;
+    private string _reqNo = string.Empty;
+
+    private bool _isEdit => EditingId.HasValue;
+    private bool _isSubmitted = false;
 
     private RequisitionUpdateDto _form = new()
     {
@@ -207,59 +336,91 @@ else
     private List<DepartmentDto> _departments = new();
     private List<DesignationDto> _designations = new();
     private List<PerspectiveDto> _perspectives = new();
-    private List<string> _statuses = new() { "Draft", "Pending", "Approved", "Rejected", "Cancelled" };
 
-    private decimal _totalWeight => _form.Details?.Sum(d => d.WeightagePercentage ?? 0) ?? 0;
+    private HashSet<int> _expanded = new();
+    private HashSet<RequisitionDetailUpdateDto> _editingRows = new();
+    private Dictionary<RequisitionDetailUpdateDto, RequisitionDetailUpdateDto> _originals = new();
+    private List<long> _deletedIds = new();
 
-    protected override async Task OnInitializedAsync()
+    private decimal _totalWeight =>
+        _form.Details?.Sum(d => d.WeightagePercentage ?? 0) ?? 0;
+
+    protected override async Task OnParametersSetAsync()
     {
-        try
+        if (_initialized && _lastEditingId == EditingId)
+            return;
+
+        _initialized = true;
+        _lastEditingId = EditingId;
+        await InitAsync();
+    }
+
+    private async Task InitAsync()
+    {
+        _loading = true;
+        _deletedIds.Clear();
+        _editingRows.Clear();
+        _originals.Clear();
+
+        var t1 = LookupSvc.GetDivisionsAsync();
+        var t2 = LookupSvc.GetDesignationsAsync();
+        var t3 = LookupSvc.GetPerspectivesAsync();
+        await Task.WhenAll(t1, t2, t3);
+
+        _divisions = t1.Result ?? new();
+        _designations = t2.Result ?? new();
+        _perspectives = t3.Result ?? new();
+
+        _expanded = _perspectives.Select(p => p.PerspectiveId).ToHashSet();
+
+        if (_isEdit)
         {
-            var t1 = LookupSvc.GetDivisionsAsync();
-            var t2 = LookupSvc.GetDesignationsAsync();
-            var t3 = LookupSvc.GetPerspectivesAsync();
-            await Task.WhenAll(t1, t2, t3);
-
-            _divisions = t1.Result ?? new();
-            _designations = t2.Result ?? new();
-            _perspectives = t3.Result ?? new();
-
-            if (_isEdit)
+            var res = await RequisitionSvc.GetByIdAsync(EditingId!.Value);
+            if (res?.Data is not null)
             {
-                var res = await RequisitionSvc.GetByIdAsync(Id!.Value);
-                if (res?.Data is not null)
+                var d = res.Data;
+                _reqNo = d.RequisitionNo;
+                _form = new RequisitionUpdateDto
                 {
-                    var d = res.Data;
-                    _form = new RequisitionUpdateDto
+                    RequisitionId = d.RequisitionId,
+                    ReqDate = d.ReqDate,
+                    DivisionId = d.DivisionId,
+                    DepartmentId = d.DepartmentId,
+                    DesignationId = d.DesignationId,
+                    Vacancy = d.Vacancy,
+                    Status = d.Status,
+                    Description = d.Description,
+                    Details = d.Details.Select(x => new RequisitionDetailUpdateDto
                     {
-                        RequisitionId = d.RequisitionId,
-                        ReqDate = d.ReqDate,
-                        DivisionId = d.DivisionId,
-                        DepartmentId = d.DepartmentId,
-                        DesignationId = d.DesignationId,
-                        Vacancy = d.Vacancy,
-                        Status = d.Status,
-                        Description = d.Description,
-                        Details = d.Details.Select(x => new RequisitionDetailUpdateDto
-                        {
-                            RequisitionDetailId = x.RequisitionDetailId,
-                            PerspectiveId = x.PerspectiveId,
-                            Objective = x.Objective,
-                            KPI = x.KPI,
-                            WeightagePercentage = x.WeightagePercentage,
-                            Remarks = x.Remarks
-                        }).ToList()
-                    };
+                        RequisitionDetailId = x.RequisitionDetailId,
+                        PerspectiveId = x.PerspectiveId,
+                        Objective = x.Objective,
+                        KPI = x.KPI,
+                        WeightagePercentage = x.WeightagePercentage,
+                        Remarks = x.Remarks
+                    }).ToList()
+                };
 
-                    if (_form.DivisionId > 0)
-                        _departments = await LookupSvc.GetDepartmentsByDivisionAsync((int)_form.DivisionId);
-                }
+                if (_form.DivisionId > 0)
+                    _departments = await LookupSvc
+                        .GetDepartmentsByDivisionAsync(_form.DivisionId);
+
+                if (_form.Status != "DRAFT")
+                    _isSubmitted = true;
             }
         }
-        finally
+        else
         {
-            _loading = false;
+            _reqNo = string.Empty;
+            _form = new RequisitionUpdateDto
+            {
+                ReqDate = DateTime.Today,
+                Details = new List<RequisitionDetailUpdateDto>()
+            };
+            _departments = new();
         }
+
+        _loading = false;
     }
 
     private async Task OnDivisionChanged(object value)
@@ -267,31 +428,105 @@ else
         _form.DepartmentId = 0;
         _departments = new();
 
-        if (value is long longId && longId > 0)
-            _departments = await LookupSvc.GetDepartmentsByDivisionAsync((int)longId);
-        else if (value is int intId && intId > 0)
-            _departments = await LookupSvc.GetDepartmentsByDivisionAsync(intId);
-        
+        var divId = value switch
+        {
+            int i => i,
+            long l => (int)l,
+            _ => 0
+        };
+
+        if (divId > 0)
+            _departments = await LookupSvc.GetDepartmentsByDivisionAsync(divId);
+
         StateHasChanged();
     }
 
-    private async Task AddDetailRow()
+    private List<RequisitionDetailUpdateDto> GetChildren(int perspectiveId) =>
+        _form.Details?.Where(d => d.PerspectiveId == perspectiveId).ToList() ?? new();
+
+    private void ToggleExpand(int perspectiveId)
     {
-        _form.Details.Add(new RequisitionDetailUpdateDto());
-        if (_grid != null) await _grid.Reload();
+        if (_expanded.Contains(perspectiveId)) _expanded.Remove(perspectiveId);
+        else _expanded.Add(perspectiveId);
     }
 
-    private async Task RemoveDetailRow(RequisitionDetailUpdateDto row)
+    private void AddChild(int perspectiveId)
     {
+        var row = new RequisitionDetailUpdateDto { PerspectiveId = perspectiveId };
+        _form.Details.Add(row);
+        _editingRows.Add(row);
+    }
+
+    private void EditRow(RequisitionDetailUpdateDto row)
+    {
+        _originals[row] = new RequisitionDetailUpdateDto
+        {
+            RequisitionDetailId = row.RequisitionDetailId,
+            PerspectiveId = row.PerspectiveId,
+            Objective = row.Objective,
+            KPI = row.KPI,
+            WeightagePercentage = row.WeightagePercentage,
+            Remarks = row.Remarks
+        };
+        _editingRows.Add(row);
+    }
+
+    private void SaveRow(RequisitionDetailUpdateDto row)
+    {
+        _editingRows.Remove(row);
+        _originals.Remove(row);
+    }
+
+    private void CancelRow(RequisitionDetailUpdateDto row)
+    {
+        if (_originals.TryGetValue(row, out var orig))
+        {
+            row.Objective = orig.Objective;
+            row.KPI = orig.KPI;
+            row.WeightagePercentage = orig.WeightagePercentage;
+            row.Remarks = orig.Remarks;
+            _originals.Remove(row);
+            _editingRows.Remove(row);
+        }
+        else
+        {
+            _form.Details.Remove(row);
+            _editingRows.Remove(row);
+        }
+    }
+
+    private void DeleteRow(RequisitionDetailUpdateDto row)
+    {
+        if (row.RequisitionDetailId is > 0)
+            _deletedIds.Add(row.RequisitionDetailId.Value);
+
         _form.Details.Remove(row);
-        if (_grid != null) await _grid.Reload();
+        _editingRows.Remove(row);
+        _originals.Remove(row);
+    }
+
+    private async Task SaveAsDraft()
+    {
+        _form.Status = "DRAFT";
+        _saveMode = "draft";
+        await SubmitForm();
     }
 
     private async Task HandleSubmit()
     {
-        if (_totalWeight != 100)
+        _form.Status = "Submitted";
+        _saveMode = "submit";
+        await SubmitForm();
+    }
+
+    private async Task SubmitForm()
+    {
+        _editingRows.Clear();
+
+        if (_form.Details.Any() && _totalWeight != 100)
         {
-            NotificationSvc.Notify(NotificationSeverity.Warning, "Validation", "Total weight must equal 100%.");
+            NotificationSvc.Notify(NotificationSeverity.Warning,
+                "Validation", "Total weightage must equal 100%.");
             return;
         }
 
@@ -300,8 +535,20 @@ else
         {
             if (_isEdit)
             {
-                var res = await RequisitionSvc.UpdateAsync(Id!.Value, _form);
-                ProcessResponse(res, "Updated");
+                _form.DeletedDetailIds = _deletedIds;
+                var res = await RequisitionSvc.UpdateAsync(EditingId!.Value, _form);
+                if (res?.Success == true)
+                {
+                    NotificationSvc.Notify(NotificationSeverity.Success,
+                        "Updated", "Requisition updated successfully.");
+                    _initialized = false;
+                    await OnSaved.InvokeAsync();
+                }
+                else
+                {
+                    NotificationSvc.Notify(NotificationSeverity.Error,
+                        "Error", res?.Message ?? "Update failed.");
+                }
             }
             else
             {
@@ -324,7 +571,18 @@ else
                 };
 
                 var res = await RequisitionSvc.CreateAsync(createDto);
-                ProcessResponse(res, "Created");
+                if (res?.Success == true)
+                {
+                    NotificationSvc.Notify(NotificationSeverity.Success,
+                        "Saved", "Requisition saved successfully.");
+                    _initialized = false;
+                    await OnSaved.InvokeAsync();
+                }
+                else
+                {
+                    NotificationSvc.Notify(NotificationSeverity.Error,
+                        "Error", res?.Message ?? "Save failed.");
+                }
             }
         }
         catch (Exception ex)
@@ -337,16 +595,21 @@ else
         }
     }
 
-    private void ProcessResponse(dynamic res, string action)
+    private void ResetForm()
     {
-        if (res?.Success == true)
+        _form = new RequisitionUpdateDto
         {
-            NotificationSvc.Notify(NotificationSeverity.Success, action, $"Requisition {action.ToLower()} successfully.");
-            Nav.NavigateTo("/requisitions");
-        }
-        else
-        {
-            NotificationSvc.Notify(NotificationSeverity.Error, "Error", res?.Message ?? "Operation failed.");
-        }
+            ReqDate = DateTime.Today,
+            Details = new List<RequisitionDetailUpdateDto>()
+        };
+        _reqNo = string.Empty;
+        _departments = new();
+        _deletedIds.Clear();
+        _editingRows.Clear();
+        _originals.Clear();
+
+        _initialized = false;
+        _lastEditingId = null;
+        _isSubmitted = false;
     }
 }
