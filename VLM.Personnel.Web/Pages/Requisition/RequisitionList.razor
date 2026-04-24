@@ -1,9 +1,4 @@
 ﻿@page "/requisitions"
-@inject RequisitionService RequisitionSvc
-@inject NavigationManager Nav
-@inject DialogService DialogSvc
-@inject NotificationService NotificationSvc
-
 <PageTitle>Requisitions</PageTitle>
 
 <div class="vlm-page-header">
@@ -54,7 +49,8 @@
                         TItem="RequisitionListDto"
                         IsLoading="@_loading"
                         AllowPaging="true"
-                        PageSize="10"
+                        ShowPagingSummary="true"
+                        PageSize="3"
                         AllowSorting="true"
                         AllowFiltering="true"
                         FilterMode="FilterMode.SimpleWithMenu"
@@ -93,11 +89,20 @@
     }
     else if (ActiveTab == "submitted")
     {
+        <div style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+            <RadzenButton Text="Refresh"
+                          Icon="refresh"
+                          ButtonStyle="ButtonStyle.Light"
+                          Size="ButtonSize.Small"
+                          Click="LoadData" />
+        </div>
+
         <RadzenDataGrid Data="@_submitted"
                         TItem="RequisitionListDto"
                         IsLoading="@_loading"
                         AllowPaging="true"
-                        PageSize="10"
+                        ShowPagingSummary="true"
+                        PageSize="3"
                         AllowSorting="true"
                         AllowFiltering="true"
                         FilterMode="FilterMode.SimpleWithMenu"

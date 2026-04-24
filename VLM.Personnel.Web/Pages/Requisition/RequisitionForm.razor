@@ -1,12 +1,6 @@
-﻿@using VLM.Personnel.SharedKernel.DTOs
-@using VLM.Personnel.SharedKernel.Common
-@inject RequisitionService RequisitionSvc
-@inject LookupService LookupSvc
-@inject NotificationService NotificationSvc
-
-@if (_loading)
+﻿@if (_loading)
 {
-    <div style="display:flex;justify-content:center;padding:60px;">
+    <div style="display: flex; justify-content: center; padding: 60px;">
         <RadzenProgressBarCircular ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
     </div>
 }
@@ -16,27 +10,22 @@ else
         <DataAnnotationsValidator />
 
         @* GENERAL INFORMATION *@
-        <div style="margin-bottom:20px;">
+        <div style="margin-bottom: 20px;">
             <div class="vlm-section-label">General Information</div>
 
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+            <div style="display: grid; grid-template-columns: repeat(3,1fr); gap:16px;">
 
                 @if (_isEdit)
                 {
                     <div>
                         <RadzenLabel Text="Requisition No" />
-                        <RadzenTextBox Value="@_reqNo"
-                                       Disabled="true"
-                                       Style="width:100%;" />
+                        <RadzenTextBox Value="@_reqNo" Disabled="true" Style="width: 100%;" />
                     </div>
                 }
 
                 <div>
                     <RadzenLabel Text="Requisition Date *" />
-                    <RadzenDatePicker @bind-Value="_form.ReqDate"
-                                      DateFormat="dd-MMMM-yyyy"
-                                      Disabled="@_isEdit"
-                                      Style="width:100%;" />
+                    <RadzenDatePicker @bind-Value="_form.ReqDate" DateFormat="dd-MMMM-yyyy" Disabled="@_isEdit" Style="width: 100%;" />
                 </div>
 
                 <div>
@@ -48,7 +37,7 @@ else
                                     Change="@(args => OnDivisionChanged(args))"
                                     Placeholder="Select Division"
                                     Disabled="@_isSubmitted"
-                                    Style="width:100%;" />
+                                    Style="width: 100%;" />
                 </div>
 
                 <div>
@@ -59,7 +48,7 @@ else
                                     @bind-Value="_form.DepartmentId"
                                     Placeholder="Select Department"
                                     Disabled="@(_form.DivisionId <= 0 || _isSubmitted)"
-                                    Style="width:100%;" />
+                                    Style="width: 100%;" />
                 </div>
 
                 <div>
@@ -73,29 +62,24 @@ else
                                     FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                     FilterOperator="StringFilterOperator.Contains"
                                     Disabled="@_isSubmitted"
-                                    Style="width:100%;" />
+                                    Style="width: 100%;" />
                 </div>
 
                 <div>
                     <RadzenLabel Text="Vacancy *" />
-                    <RadzenNumeric @bind-Value="_form.Vacancy"
-                                   Min="1"
-                                   Disabled="@_isSubmitted"
-                                   Style="width:100%;" />
+                    <RadzenNumeric @bind-Value="_form.Vacancy" Min="1" Disabled="@_isSubmitted" Style="width: 100%;" />
                 </div>
 
                 <div style="grid-column:1/-1;">
                     <RadzenLabel Text="Description" />
-                    <RadzenTextArea @bind-Value="_form.Description"
-                                    Rows="2"
-                                    Style="width:100%;" />
+                    <RadzenTextArea @bind-Value="_form.Description" Rows="2" Disabled="@_isSubmitted" Style="width: 100%;" />
                 </div>
 
             </div>
         </div>
 
         @* KPI LIST INFORMATION *@
-        <div style="margin-bottom:20px;">
+        <div style="margin-bottom: 20px;">
             <div class="vlm-section-label">KPI List Information</div>
 
             <div class="kpi-tree">
@@ -124,9 +108,9 @@ else
                             @perspective.PerspectiveName
                             @if (children.Any())
                             {
-                                <span style="margin-left:10px;font-size:0.7rem;font-weight:400;
-                                    color:#667eea;background:#ebf4ff;border-radius:999px;
-                                    padding:1px 8px;">
+                                <span style="margin-left: 10px; font-size: 0.7rem; font-weight: 400;
+                                    color: #667eea; background: #ebf4ff; border-radius: 999px;
+                                    padding: 1px 8px;">
                                     @children.Count
                                 </span>
                             }
@@ -158,19 +142,17 @@ else
 
                                     <div class="kpi-child-row">
 
-                                        <div class="kpi-child-cell" style="background:#fafbff;"></div>
+                                        <div class="kpi-child-cell" style="background: #fafbff;"></div>
 
                                         <!-- Objective -->
                                         <div class="kpi-child-cell">
                                             @if (isEditing)
                                             {
-                                                <RadzenTextBox @bind-Value="child.Objective"
-                                                               Placeholder="Enter objective..."
-                                                               Style="width:100%;font-size:0.82rem;" />
+                                                <RadzenTextBox @bind-Value="child.Objective" Placeholder="Enter objective..." Style="width: 100%; font-size: 0.82rem;" />
                                             }
                                             else
                                             {
-                                                <span style="font-size:0.85rem;">@child.Objective</span>
+                                                <span style="font-size: 0.85rem;">@child.Objective</span>
                                             }
                                         </div>
 
@@ -178,27 +160,23 @@ else
                                         <div class="kpi-child-cell">
                                             @if (isEditing)
                                             {
-                                                <RadzenTextBox @bind-Value="child.KPI"
-                                                               Placeholder="Enter KPI metric..."
-                                                               Style="width:100%;font-size:0.82rem;" />
+                                                <RadzenTextBox @bind-Value="child.KPI" Placeholder="Enter KPI metric..." Style="width: 100%; font-size: 0.82rem;" />
                                             }
                                             else
                                             {
-                                                <span style="font-size:0.85rem;">@child.KPI</span>
+                                                <span style="font-size: 0.85rem;">@child.KPI</span>
                                             }
                                         </div>
 
                                         <!-- Weightage -->
-                                        <div class="kpi-child-cell" style="justify-content:center;">
+                                        <div class="kpi-child-cell" style="justify-content: center;">
                                             @if (isEditing)
                                             {
-                                                <RadzenNumeric @bind-Value="child.WeightagePercentage"
-                                                               Min="0" Max="100"
-                                                               Style="width: 100%; font-size: 0.82rem;" />
+                                                <RadzenNumeric @bind-Value="child.WeightagePercentage" Min="0" Max="100" class="kpi-child-cell-input" Style="width: 100%; font-size: 0.82rem;" />
                                             }
                                             else
                                             {
-                                                <span style="font-size:0.85rem;">
+                                                <span style="font-size: 0.85rem;">
                                                     @(child.WeightagePercentage?.ToString("0.##") ?? "-") %
                                                 </span>
                                             }
@@ -208,13 +186,11 @@ else
                                         <div class="kpi-child-cell">
                                             @if (isEditing)
                                             {
-                                                <RadzenTextBox @bind-Value="child.Remarks"
-                                                               Placeholder="Remarks..."
-                                                               Style="width:100%;font-size:0.82rem;" />
+                                                <RadzenTextBox @bind-Value="child.Remarks" Placeholder="Remarks..." Style="width: 100%; font-size: 0.82rem;" />
                                             }
                                             else
                                             {
-                                                <span style="font-size:0.85rem;color:#718096;">
+                                                <span style="font-size: 0.85rem; color: #718096;">
                                                     @child.Remarks
                                                 </span>
                                             }
@@ -222,20 +198,20 @@ else
 
                                         <!-- Actions -->
                                         <div class="kpi-child-cell"
-                                             style="justify-content:center;gap:6px;display:flex;">
+                                             style="justify-content: center; gap: 6px;display: flex;">
                                             @if (isEditing)
                                             {
                                                 <button class="kpi-action-btn save"
                                                         title="Save row"
                                                         type="button"
                                                         @onclick="() => SaveRow(child)">
-                                                    <RadzenIcon Icon="check_circle" Style="font-size:20px;" />
+                                                    <RadzenIcon Icon="check_circle" Style="font-size: 20px;" />
                                                 </button>
                                                 <button class="kpi-action-btn cancel"
                                                         title="Cancel"
                                                         type="button"
                                                         @onclick="() => CancelRow(child)">
-                                                    <RadzenIcon Icon="cancel" Style="font-size:20px;" />
+                                                    <RadzenIcon Icon="cancel" Style="font-size: 20px;" />
                                                 </button>
                                             }
                                             else
@@ -245,7 +221,7 @@ else
                                                         type="button"
                                                         disabled="@_isSubmitted"
                                                         @onclick="() => EditRow(child)">
-                                                    <RadzenIcon Icon="edit" Style="font-size:20px;" />
+                                                    <RadzenIcon Icon="edit" Style="font-size: 20px;" />
                                                 </button>
                                             }
                                             <button class="kpi-action-btn delete"
@@ -253,7 +229,7 @@ else
                                                     type="button"
                                                     disabled="@_isSubmitted"
                                                     @onclick="() => DeleteRow(child)">
-                                                <RadzenIcon Icon="delete" Style="font-size:20px;" />
+                                                <RadzenIcon Icon="delete" Style="font-size: 20px;" />
                                             </button>
                                         </div>
 
@@ -285,13 +261,13 @@ else
         </div>
 
         @* ACTIONS *@
-        <div style="display:flex;gap:12px;justify-content:flex-end;
-            padding-top:12px;border-top:1px solid #edf2f7;">
+        <div style="display: flex; gap:12px; justify-content: flex-end;
+            padding-top: 12px; border-top: 1px solid #edf2f7;">
             <RadzenButton Text="Reset"
                           Icon="restart_alt"
                           ButtonStyle="ButtonStyle.Light"
                           Click="ResetForm"
-                          Disabled="@_isSubmitted"
+                          Disabled="@(_isEdit || _isSubmitted)"
                           ButtonType="ButtonType.Button" />
             <RadzenButton Text="Save as Draft"
                           Icon="save"
@@ -508,14 +484,14 @@ else
     private async Task SaveAsDraft()
     {
         _form.Status = "DRAFT";
-        _saveMode = "draft";
+        _saveMode = "DRAFT";
         await SubmitForm();
     }
 
     private async Task HandleSubmit()
     {
-        _form.Status = "Submitted";
-        _saveMode = "submit";
+        _form.Status = "SUBMITTED";
+        _saveMode = "SUBMITTED";
         await SubmitForm();
     }
 

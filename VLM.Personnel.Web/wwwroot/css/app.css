@@ -427,6 +427,19 @@ html, body {
         justify-content: center;
     }
 
+    .kpi-child-cell .kpi-child-cell-input.rz-numeric {
+        height: 32px !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+
+        .kpi-child-cell .kpi-child-cell-input.rz-numeric:hover {
+            border: 1px solid #e2e8f0 !important;
+        }
+
+        .kpi-child-cell .kpi-child-cell-input.rz-numeric input.rz-numeric-input {
+            border: none !important;
+        }
+
 .kpi-empty-row {
     padding: 14px 12px;
     font-size: 0.82rem;

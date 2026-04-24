@@ -17,6 +17,7 @@ namespace VLM.Personnel.API.Controllers
             _service = service;
         }
 
+        // GET  api/lookups/divisions
         [HttpGet("divisions")]
         public async Task<IActionResult> GetDivisions()
         {
@@ -24,6 +25,7 @@ namespace VLM.Personnel.API.Controllers
             return Ok(result);
         }
 
+        // GET  api/lookups/departments
         [HttpGet("departments")]
         public async Task<IActionResult> GetDepartments()
         {
@@ -31,6 +33,7 @@ namespace VLM.Personnel.API.Controllers
             return Ok(result);
         }
 
+        // GET  api/lookups/departments/by-division/{divisionId}
         [HttpGet("departments/by-division/{divisionId:int}")]
         public async Task<IActionResult> GetDepartmentsByDivision(int divisionId)
         {
@@ -38,6 +41,7 @@ namespace VLM.Personnel.API.Controllers
             return Ok(result);
         }
 
+        // GET  api/lookups/designations
         [HttpGet("designations")]
         [ProducesResponseType(typeof(ApiResponse<IEnumerable<DesignationDto>>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetDesignations()
@@ -46,6 +50,7 @@ namespace VLM.Personnel.API.Controllers
             return Ok(result);
         }
 
+        // GET  api/lookups/perspectives
         [HttpGet("perspectives")]
         public async Task<IActionResult> GetPerspectives()
         {

@@ -10,7 +10,7 @@ namespace VLM.Personnel.Application.Mappings
         {
             TypeAdapterConfig<RequisitionCreateDto, Requisition>
                 .NewConfig()
-                .Map(dest => dest.Status, src => "Draft")
+                .Map(dest => dest.Status, src => "DRAFT")
                 .Map(dest => dest.CreatedAt, src => DateTime.Now)
                 .Ignore(dest => dest.RequisitionId)
                 .Ignore(dest => dest.RequisitionNo);

@@ -18,7 +18,7 @@ namespace VLM.Personnel.Infrastructure.Repositories
 
         public async Task<IEnumerable<RequisitionListDto>> GetAllAsync()
         {
-            const string sql = """
+            const string sql = @"
             SELECT
                 r.RequisitionId,
                 r.RequisitionNo,
@@ -33,8 +33,7 @@ namespace VLM.Personnel.Infrastructure.Repositories
             INNER JOIN core.Division     d   ON d.DivisionId     = r.DivisionId
             INNER JOIN core.Department   dep ON dep.DepartmentId = r.DepartmentId
             INNER JOIN core.Designation  des ON des.DesignationId= r.DesignationId
-            ORDER BY r.RequisitionId DESC
-            """;
+            ORDER BY r.RequisitionId DESC";
 
             using var conn = _context.GetConnection();
             return await conn.QueryAsync<RequisitionListDto>(sql);
@@ -42,7 +41,7 @@ namespace VLM.Personnel.Infrastructure.Repositories
 
         public async Task<RequisitionDto?> GetByIdAsync(long requisitionId)
         {
-            const string sql = """
+            const string sql = @"
             SELECT
                 r.RequisitionId,
                 r.RequisitionNo,
@@ -76,8 +75,7 @@ namespace VLM.Personnel.Infrastructure.Repositories
             FROM hr.RequisitionDetail rd
             INNER JOIN core.Perspective p ON p.PerspectiveId = rd.PerspectiveId
             WHERE rd.RequisitionId = @RequisitionId
-            ORDER BY rd.RequisitionDetailId;
-            """;
+            ORDER BY rd.RequisitionDetailId;";
 
             using var conn = _context.GetConnection();
             using var multi = await conn.QueryMultipleAsync(sql, new { RequisitionId = requisitionId });
@@ -91,7 +89,7 @@ namespace VLM.Personnel.Infrastructure.Repositories
 
         public async Task<long> CreateAsync(Requisition requisition, IEnumerable<RequisitionDetail> details)
         {
-            const string insertRequisition = """
+            const string insertRequisition = @"
             DECLARE @NewSeq INT;
             DECLARE @Today NVARCHAR(8) = FORMAT(GETDATE(), 'yyMMdd');
             DECLARE @Prefix NVARCHAR(20) = 'R' + @Today + '-';
@@ -106,15 +104,13 @@ namespace VLM.Personnel.Infrastructure.Repositories
                 (RequisitionNo, ReqDate, DivisionId, DepartmentId, DesignationId, Vacancy, Status, Description)
             OUTPUT INSERTED.RequisitionId
             VALUES 
-                (@RequisitionNo, @ReqDate, @DivisionId, @DepartmentId, @DesignationId, @Vacancy, @Status, @Description);
-            """;
+                (@RequisitionNo, @ReqDate, @DivisionId, @DepartmentId, @DesignationId, @Vacancy, @Status, @Description);";
 
-            const string insertDetail = """
+            const string insertDetail = @"
             INSERT INTO hr.RequisitionDetail 
                 (RequisitionId, PerspectiveId, Objective, KPI, WeightagePercentage, Remarks)
             VALUES 
-                (@RequisitionId, @PerspectiveId, @Objective, @KPI, @WeightagePercentage, @Remarks);
-            """;
+                (@RequisitionId, @PerspectiveId, @Objective, @KPI, @WeightagePercentage, @Remarks);";
 
             using var conn = _context.GetConnection();
             if (conn.State != ConnectionState.Open) conn.Open();
@@ -161,7 +157,7 @@ namespace VLM.Personnel.Infrastructure.Repositories
 
         public async Task<bool> UpdateAsync(Requisition requisition, IEnumerable<RequisitionDetail> details, IEnumerable<long> deletedDetailIds)
         {
-            const string updateRequisition = """
+            const string updateRequisition = @"
             UPDATE hr.Requisition SET
                 ReqDate        = @ReqDate,
                 DivisionId     = @DivisionId,
@@ -170,10 +166,9 @@ namespace VLM.Personnel.Infrastructure.Repositories
                 Vacancy        = @Vacancy,
                 Status         = @Status,
                 Description    = @Description
-            WHERE RequisitionId = @RequisitionId;
-            """;
+            WHERE RequisitionId = @RequisitionId;";
 
-            const string upsertDetail = """
+            const string upsertDetail = @"
             IF @RequisitionDetailId IS NULL OR @RequisitionDetailId = 0
             BEGIN
                 INSERT INTO hr.RequisitionDetail
@@ -191,13 +186,11 @@ namespace VLM.Personnel.Infrastructure.Repositories
                     Remarks             = @Remarks
                 WHERE RequisitionDetailId = @RequisitionDetailId
                   AND RequisitionId       = @RequisitionId;
-            END
-            """;
+            END";
 
-            const string deleteDetail = """
+            const string deleteDetail = @"
             DELETE FROM hr.RequisitionDetail
-            WHERE RequisitionDetailId = @Id AND RequisitionId = @RequisitionId;
-            """;
+            WHERE RequisitionDetailId = @Id AND RequisitionId = @RequisitionId;";
 
             using var conn = _context.GetConnection();
             conn.Open();
@@ -250,7 +243,7 @@ namespace VLM.Personnel.Infrastructure.Repositories
 
         public async Task<bool> DeleteAsync(long requisitionId)
         {
-            const string sql = "DELETE FROM hr.Requisition WHERE RequisitionId = @RequisitionId;";
+            const string sql = @"DELETE FROM hr.Requisition WHERE RequisitionId = @RequisitionId;";
             using var conn = _context.GetConnection();
             var rows = await conn.ExecuteAsync(sql, new { RequisitionId = requisitionId });
             return rows > 0;
@@ -258,7 +251,7 @@ namespace VLM.Personnel.Infrastructure.Repositories
 
         public async Task<RequisitionDetailDto?> GetDetailByIdAsync(long requisitionDetailId)
         {
-            const string sql = """
+            const string sql = @"
             SELECT
                 rd.RequisitionDetailId,
                 rd.RequisitionId,
@@ -271,8 +264,7 @@ namespace VLM.Personnel.Infrastructure.Repositories
                 rd.CreatedAt
             FROM hr.RequisitionDetail rd
             INNER JOIN core.Perspective p ON p.PerspectiveId = rd.PerspectiveId
-            WHERE rd.RequisitionDetailId = @RequisitionDetailId;
-            """;
+            WHERE rd.RequisitionDetailId = @RequisitionDetailId;";
 
             using var conn = _context.GetConnection();
             return await conn.QuerySingleOrDefaultAsync<RequisitionDetailDto>(sql, new { RequisitionDetailId = requisitionDetailId });
@@ -280,13 +272,12 @@ namespace VLM.Personnel.Infrastructure.Repositories
 
         public async Task<long> AddDetailAsync(RequisitionDetail detail)
         {
-            const string sql = """
+            const string sql = @"
             INSERT INTO hr.RequisitionDetail
                 (RequisitionId, PerspectiveId, Objective, KPI, WeightagePercentage, Remarks)
             VALUES
                 (@RequisitionId, @PerspectiveId, @Objective, @KPI, @WeightagePercentage, @Remarks);
-            SELECT CAST(SCOPE_IDENTITY() AS BIGINT);
-            """;
+            SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
 
             using var conn = _context.GetConnection();
             return await conn.ExecuteScalarAsync<long>(sql, new
@@ -302,15 +293,14 @@ namespace VLM.Personnel.Infrastructure.Repositories
 
         public async Task<bool> UpdateDetailAsync(RequisitionDetail detail)
         {
-            const string sql = """
+            const string sql = @"
             UPDATE hr.RequisitionDetail SET
                 PerspectiveId       = @PerspectiveId,
                 Objective           = @Objective,
                 KPI                 = @KPI,
                 WeightagePercentage = @WeightagePercentage,
                 Remarks             = @Remarks
-            WHERE RequisitionDetailId = @RequisitionDetailId;
-            """;
+            WHERE RequisitionDetailId = @RequisitionDetailId;";
 
             using var conn = _context.GetConnection();
             var rows = await conn.ExecuteAsync(sql, new
@@ -327,7 +317,7 @@ namespace VLM.Personnel.Infrastructure.Repositories
 
         public async Task<bool> DeleteDetailAsync(long requisitionDetailId)
         {
-            const string sql = "DELETE FROM hr.RequisitionDetail WHERE RequisitionDetailId = @RequisitionDetailId;";
+            const string sql = @"DELETE FROM hr.RequisitionDetail WHERE RequisitionDetailId = @RequisitionDetailId;";
             using var conn = _context.GetConnection();
             var rows = await conn.ExecuteAsync(sql, new { RequisitionDetailId = requisitionDetailId });
             return rows > 0;

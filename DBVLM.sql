@@ -103,7 +103,7 @@ CREATE TABLE hr.Requisition (
     DepartmentId INT NOT NULL,
     DesignationId INT NOT NULL,
     Vacancy INT NOT NULL,
-    Status NVARCHAR(20) NOT NULL CONSTRAINT DF_Requisition_Status DEFAULT 'Draft',
+    Status NVARCHAR(20) NOT NULL CONSTRAINT DF_Requisition_Status DEFAULT 'DRAFT',
     Description NVARCHAR(500) NULL,
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
 
