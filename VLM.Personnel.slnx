@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/database/">
-    <File Path="../../../Raspberry/DBVLM.bak" />
+    <File Path="DBVLM.bak" />
   </Folder>
   <Folder Name="/scripts/">
     <File Path="DBVLM.sql" />
