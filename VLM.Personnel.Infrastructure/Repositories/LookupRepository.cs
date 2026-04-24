@@ -16,12 +16,11 @@ namespace VLM.Personnel.Infrastructure.Repositories
 
         public async Task<IEnumerable<DivisionDto>> GetDivisionsAsync()
         {
-            const string sql = """
+            const string sql = @"
             SELECT DivisionId, DivisionName
             FROM core.Division
             WHERE IsActive = 1
-            ORDER BY DivisionName;
-            """;
+            ORDER BY DivisionName;";
 
             using var conn = _context.GetConnection();
             return await conn.QueryAsync<DivisionDto>(sql);
@@ -29,12 +28,11 @@ namespace VLM.Personnel.Infrastructure.Repositories
 
         public async Task<IEnumerable<DepartmentDto>> GetDepartmentsAsync()
         {
-            const string sql = """
+            const string sql = @"
             SELECT DepartmentId, DivisionId, DepartmentName
             FROM core.Department
             WHERE IsActive = 1
-            ORDER BY DepartmentName;
-            """;
+            ORDER BY DepartmentName;";
 
             using var conn = _context.GetConnection();
             return await conn.QueryAsync<DepartmentDto>(sql);
@@ -42,13 +40,12 @@ namespace VLM.Personnel.Infrastructure.Repositories
 
         public async Task<IEnumerable<DepartmentDto>> GetDepartmentsByDivisionAsync(int divisionId)
         {
-            const string sql = """
+            const string sql = @"
             SELECT DepartmentId, DivisionId, DepartmentName
             FROM core.Department
             WHERE IsActive = 1
               AND DivisionId = @DivisionId
-            ORDER BY DepartmentName;
-            """;
+            ORDER BY DepartmentName;";
 
             using var conn = _context.GetConnection();
             return await conn.QueryAsync<DepartmentDto>(sql, new { DivisionId = divisionId });
@@ -56,12 +53,11 @@ namespace VLM.Personnel.Infrastructure.Repositories
 
         public async Task<IEnumerable<DesignationDto>> GetDesignationsAsync()
         {
-            const string sql = """
+            const string sql = @"
             SELECT DesignationId, DesignationName
             FROM core.Designation
             WHERE IsActive = 1
-            ORDER BY DesignationName;
-            """;
+            ORDER BY DesignationName;";
 
             using var conn = _context.GetConnection();
             return await conn.QueryAsync<DesignationDto>(sql);
@@ -69,12 +65,11 @@ namespace VLM.Personnel.Infrastructure.Repositories
 
         public async Task<IEnumerable<PerspectiveDto>> GetPerspectivesAsync()
         {
-            const string sql = """
+            const string sql = @"
             SELECT PerspectiveId, PerspectiveName
             FROM core.Perspective
             WHERE IsActive = 1
-            ORDER BY PerspectiveName;
-            """;
+            ORDER BY PerspectiveName;";
 
             using var conn = _context.GetConnection();
             return await conn.QueryAsync<PerspectiveDto>(sql);

@@ -35,7 +35,7 @@ namespace VLM.Personnel.API.Extensions
 
             var config = TypeAdapterConfig.GlobalSettings;
             config.Scan(
-                typeof(VLM.Personnel.Application.Mappings.MapsterConfig).Assembly
+                typeof(MapsterConfig).Assembly
             );
 
             services.AddSingleton(config);

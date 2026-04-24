@@ -49,10 +49,37 @@ CREATE TABLE core.Perspective (
 GO
 
 /* 3. INSERT MASTER DATA */
-INSERT INTO core.Division (DivisionName) VALUES ('Sales'), ('IT'), ('HR'), ('Finance');
-INSERT INTO core.Department (DivisionId, DepartmentName) VALUES (1, 'Sales Operations'), (1, 'Marketing'), (2, 'Software Development');
-INSERT INTO core.Designation (DesignationName) VALUES ('Software Engineer'), ('Senior Software Engineer');
-INSERT INTO core.Perspective (PerspectiveName) VALUES ('Financial'), ('People'), ('Customer'), ('Internal Process');
+INSERT INTO core.Division (DivisionName)
+VALUES ('Sales'), ('IT'), ('HR'), ('Finance');
+
+INSERT INTO core.Department (DivisionId, DepartmentName)
+VALUES (1, 'Sales Operations'),
+       (1, 'Marketing'),
+       (2, 'Software Development'),
+       (1, 'Retail Sales'),
+       (2, 'IT Support'),
+       (3, 'Recruitment'),
+       (4, 'Accounts Payable'),
+       (4, 'Financial Planning');
+
+INSERT INTO core.Designation (DesignationName)
+VALUES ('Software Engineer'),
+       ('Senior Software Engineer'),
+       ('Junior Software Engineer'),
+       ('QA Engineer'),
+       ('System Administrator'),
+       ('Network Engineer'),
+       ('HR Executive'),
+       ('HR Manager'),
+       ('Accountant'),
+       ('Senior Accountant'),
+       ('Finance Manager'),
+       ('Sales Executive'),
+       ('Marketing Executive'),
+       ('Business Analyst');
+
+INSERT INTO core.Perspective (PerspectiveName)
+VALUES ('Financial'), ('People'), ('Customer'), ('Internal Process');
 GO
 
 /* 4. SEQUENCES (CACHE 500) */
@@ -76,7 +103,7 @@ CREATE TABLE hr.Requisition (
     DepartmentId INT NOT NULL,
     DesignationId INT NOT NULL,
     Vacancy INT NOT NULL,
-    Status NVARCHAR(20) NOT NULL CONSTRAINT DF_Requisition_Status DEFAULT 'Draft',
+    Status NVARCHAR(20) NOT NULL CONSTRAINT DF_Requisition_Status DEFAULT 'DRAFT',
     Description NVARCHAR(500) NULL,
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
 
