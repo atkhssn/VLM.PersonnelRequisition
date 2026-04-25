@@ -3,7 +3,8 @@
     <File Path="DBVLM.bak" />
   </Folder>
   <Folder Name="/scripts/">
-    <File Path="DBVLM.sql" />
+    <File Path="DBVLM-Schema-Only.sql" />
+    <File Path="DBVLM-Schema-With-Data.sql" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="VLM.Personnel.API/VLM.Personnel.API.csproj" />
